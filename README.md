@@ -7,7 +7,7 @@ Lastly, the model utilizes the node feature representations from the final layer
 
 The GCA Layewr need three inputs: node representation, edge_index and topology representation.
 
-Reference
+### **Reference**
 
 Shen, J., Ain, Q.T., Liu, Y. et al. GTAT: empowering graph neural networks with cross attention. Sci Rep 15, 4760 (2025). 
 https://doi.org/10.1038/s41598-025-88993-3

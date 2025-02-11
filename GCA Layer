@@ -2,7 +2,7 @@ class GTATConv(MessagePassing):
     _alpha: OptTensor
 
     def __init__(self, in_channels: int, out_channels: int, heads: int,
-                 topu_channels:int = 15,
+                 topology_channels:int = 15,
                  concat: bool = True, negative_slope: float = 0.2,
                  dropout: float = 0., add_self_loops: bool = True,
                  bias: bool = True, share_weights: bool = False, **kwargs):
@@ -10,7 +10,7 @@ class GTATConv(MessagePassing):
 
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.topu_channels = topu_channels
+        self.topology_channels = topology_channels
         self.heads = heads
         self.concat = concat
         self.negative_slope = negative_slope
@@ -30,7 +30,7 @@ class GTATConv(MessagePassing):
 
         self.att = Parameter(torch.Tensor(1, heads, out_channels))
 
-        self.att2 = Parameter(torch.Tensor(1, heads, self.topu_channels))
+        self.att2 = Parameter(torch.Tensor(1, heads, self.topology_channels))
 
         if bias and concat:
             self.bias = Parameter(torch.Tensor(heads * out_channels))
@@ -42,7 +42,7 @@ class GTATConv(MessagePassing):
         self._alpha1 = None
         self._alpha2 = None
 
-        self.bias2 =  Parameter(torch.Tensor(self.topu_channels))
+        self.bias2 =  Parameter(torch.Tensor(self.topology_channels))
 
         self.reset_parameters()
 
@@ -55,7 +55,7 @@ class GTATConv(MessagePassing):
         zeros(self.bias2)
 
     def forward(self, x: Union[Tensor, PairTensor], edge_index: Adj,
-                topu: Tensor,
+                topology: Tensor,
                 size: Size = None, return_attention_weights: bool = None):
         # type: (Union[Tensor, PairTensor], Tensor , Tensor, Size, NoneType) -> Tensor  # noqa
         # type: (Union[Tensor, PairTensor], SparseTensor, Size, NoneType) -> Tensor  # noqa
@@ -83,10 +83,10 @@ class GTATConv(MessagePassing):
 
         assert x_l is not None
         assert x_r is not None
-        topu = topu.unsqueeze(dim = 1)
-        topu = topu.repeat(1, self.heads, 1)
-        x_l = torch.cat((x_l,topu), dim = -1)
-        x_r = torch.cat((x_r,topu), dim = -1)
+        topology = topology.unsqueeze(dim = 1)
+        topology = topology.repeat(1, self.heads, 1)
+        x_l = torch.cat((x_l,topology), dim = -1)
+        x_r = torch.cat((x_r,topology), dim = -1)
 
         if self.add_self_loops:
             if isinstance(edge_index, Tensor):
